@@ -57,12 +57,13 @@ func ColorText(c Color, text string) string {
 
 // LevelColors is a mapping of log level strings to colors.
 var LevelColors = map[string]Color{
-	"trace": White,
-	"debug": White,
-	"info": Green,
-	"warn": Yellow,
-	"warning": Yellow,
-	"error": Red,
-	"fatal": Red,
-	"panic": Red,
+	"trace":    White,
+	"debug":    White,
+	"info":     Green,
+	"warn":     Yellow,
+	"warning":  Yellow,
+	"error":    Red,
+	"fatal":    Red,
+	"critical": Red,
+	"panic":    Red,
 }

@@ -3,7 +3,9 @@ package jl
 import (
 	"bytes"
 	"fmt"
+	"strconv"
 	"strings"
+	"time"
 	"unicode/utf8"
 )
 
@@ -34,6 +36,11 @@ var (
 	UpperCase = TransformFunc(strings.ToUpper)
 	// LowerCase transforms the input string to lower case.
 	LowerCase = TransformFunc(strings.ToLower)
+
+	UnixTimestamp = TransformFunc(func(s string) string {
+		var i, _ = strconv.ParseInt(s, 10, 64)
+		return time.Unix(i, 0).Format("2006-01-02 15:04")
+	})
 )
 
 // Truncate truncates the string to the a requested number of digits.
@@ -63,7 +70,7 @@ func (remain Ellipsize) Transform(ctx *Context, input string) string {
 	}
 	remain -= 1 // account for the ellipsis
 	chomped := length - int(remain)
-	start := int(remain)/2
+	start := int(remain) / 2
 	end := start + chomped
 	return input[:start] + "…" + input[end:]
 }

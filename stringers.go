@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -47,7 +48,74 @@ func ErrorStringer(ctx *Context, v interface{}) string {
 		stackStr := "\t" + strings.Join(lines, "\n\t")
 		w.WriteString(stackStr)
 		return w.String()
-	}  else {
+	} else {
 		return DefaultStringer(ctx, v)
 	}
+}
+
+func TraceStringer(ctx *Context, v interface{}) string {
+	w := &bytes.Buffer{}
+	if rawMsg, ok := v.(json.RawMessage); ok {
+		var arr []string
+		_ = json.Unmarshal(rawMsg, &arr)
+		for _, e := range arr {
+			w.WriteRune('\n')
+			w.WriteString(e)
+		}
+	}
+	return w.String()
+}
+
+type LogException struct {
+	File  string   `json:"file"`
+	Trace []string `json:"trace"`
+}
+
+func ExceptionStringer(ctx *Context, v interface{}) string {
+	w := &bytes.Buffer{}
+	if rawMsg, ok := v.(json.RawMessage); ok {
+		var log LogException
+		_ = json.Unmarshal(rawMsg, &log)
+		w.WriteString(log.File)
+		for _, e := range log.Trace {
+			w.WriteRune('\n')
+			w.WriteString(e)
+		}
+	}
+	return w.String()
+}
+
+type LogExtra struct {
+	Class string `json:"class"`
+	Line  int    `json:"line"`
+}
+
+func ExtraStringer(ctx *Context, v interface{}) string {
+	if rawMsg, ok := v.(json.RawMessage); ok {
+		var extra LogExtra
+		err := json.Unmarshal(rawMsg, &extra)
+		if err == nil {
+			return extra.Class + ":" + strconv.Itoa(extra.Line)
+		}
+		var c string
+		_ = json.Unmarshal(rawMsg, &c)
+		return c
+	}
+	return ""
+}
+
+func LevelStringer(ctx *Context, v interface{}) string {
+	if rawMsg, ok := v.(json.RawMessage); ok {
+		var str string
+		_ = json.Unmarshal(rawMsg, &str)
+		switch str {
+		case "WARNING":
+			return "WARN"
+		case "CRITICAL":
+			return "CRIT"
+		default:
+			return str
+		}
+	}
+	return ""
 }

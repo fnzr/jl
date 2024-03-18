@@ -23,12 +23,13 @@ func (a *sequentialColorizer) Transform(ctx *Context, input string) string {
 	if ctx.DisableColor {
 		return input
 	}
-	if color, ok := a.assigned[ctx.Original]; ok {
+	key := strings.Split(input, ":")[0]
+	if color, ok := a.assigned[key]; ok {
 		return ColorText(color, input)
 	}
 	color := a.colors[a.seq%len(AllColors)]
 	a.seq++
-	a.assigned[ctx.Original] = color
+	a.assigned[key] = color
 	return ColorText(color, input)
 }
 

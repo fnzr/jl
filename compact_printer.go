@@ -37,28 +37,32 @@ type FieldFmt struct {
 // for most types of logs.
 var DefaultCompactPrinterFieldFmt = []FieldFmt{{
 	Name:         "level",
-	Finders:      []FieldFinder{ByNames("level", "severity", "logLevel")},
-	Transformers: []Transformer{Truncate(4), UpperCase, ColorMap(LevelColors)},
+	Finders:      []FieldFinder{ByNames("level_name")},
+	Transformers: []Transformer{Truncate(5), RightPad(5), UpperCase, ColorMap(LevelColors)},
+	Stringer:     LevelStringer,
 }, {
-	Name:    "time",
-	Finders: []FieldFinder{ByNames("timestamp", "time", "ts")},
-}, {
-	Name:         "thread",
-	Transformers: []Transformer{Ellipsize(16), Format("[%s]"), RightPad(18), ColorSequence(AllColors)},
-}, {
-	Name:         "logger",
-	Finders:      []FieldFinder{ByNames("logger", "caller")},
-	Transformers: []Transformer{Ellipsize(20), Format("%s|"), LeftPad(21), ColorSequence(AllColors)},
+	Name:         "time",
+	Finders:      []FieldFinder{ByNames("datetime")},
+	Transformers: []Transformer{UnixTimestamp},
 }, {
 	Name:         "traceId",
-	Transformers: []Transformer{Format("%s|"), ColorSequence(AllColors)},
+	Finders:      []FieldFinder{ByNames("extra.uid")},
+	Transformers: []Transformer{Truncate(8), Format("%s"), ColorSequence(AllColors)},
+}, {
+	Name:         "location",
+	Finders:      []FieldFinder{ByNames("context.source", "extra")},
+	Transformers: []Transformer{Ellipsize(20), Format("[%s]"), RightPad(22), ColorSequence(AllColors)},
+	Stringer:     ExtraStringer,
 }, {
 	Name:    "message",
 	Finders: []FieldFinder{ByNames("message", "msg", "textPayload", "jsonPayload.message")},
 }, {
+	Name:    "dump",
+	Finders: []FieldFinder{ByNames("context.dump")},
+}, {
 	Name:     "errors",
-	Finders:  []FieldFinder{LogrusErrorFinder, ByNames("exceptions", "exception", "error")},
-	Stringer: ErrorStringer,
+	Finders:  []FieldFinder{ByNames("context.exception")},
+	Stringer: ExceptionStringer,
 }}
 
 // NewCompactPrinter allocates and returns a new compact printer.
