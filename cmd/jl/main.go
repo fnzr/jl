@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/mattn/go-isatty"
-	"github.com/mightyguava/jl"
+	"github.com/fnzr/jl"
 	"os"
 )
 
